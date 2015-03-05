@@ -1,7 +1,9 @@
 # Go markdown blog
 This is my attempt to build a Go based web 'app' and service.
 I need a blog and I wanted control over the content (indieweb) 
-The blog allows posts to be written in Markdown and allows comments into a MySQL database
+The blog allows posts to be written in Markdown and allows comments into a MySQL database.
+
+The Blog is being used at http://researchnot.es
 
 
 ## Issues
