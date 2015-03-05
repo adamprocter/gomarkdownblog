@@ -1,0 +1,35 @@
+
+<body>
+<h1><a href="#">HomePage</a></h1>
+<h3>{{.Date}}</h3>
+<!-- <a href="/{{.File}}"><h2>{{.Title}}</h2></a> -->
+<h2>{{.Title}}</h2>
+<p>Estimated reading time:<span class="eta"></span></p>
+<article>
+<p>{{.Body}}</p>
+</article>
+
+
+
+<form action="/{{.File}}" method="POST">
+<h2>Feedback</h2>
+	<input type="hidden" name="uniquepost" value="{{.File}}">
+	    <ol>
+		    <li><label>Name:</label>
+		    <input type="text" name="name" required>
+		    </li>
+		    <li>
+		    <label>Feedback:</label>
+		    <textarea type="textarea" name="comment" required></textarea>
+		    </li>
+	    </ol>
+    <input type="submit" value="Send Feedback">
+</form>
+<section class="comments">
+{{range .Comments}}
+<h5>{{.Name}}</h5>
+<p>{{.Comment}}</p>
+{{ else  }}
+<p>No Comments for this post.</p>
+{{end}}
+</section>
