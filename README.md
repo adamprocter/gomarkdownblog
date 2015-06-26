@@ -16,7 +16,7 @@ and Slack Go contributor Abiola Ibrahim
 
 ## Copyright
 
-Released with Adam Procter under the MIT License.
+Released by Adam Procter under the MIT License.
 
 Copyright (c) 2015 Adam Procter
 
