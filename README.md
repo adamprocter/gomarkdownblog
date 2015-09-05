@@ -7,12 +7,33 @@ The Blog is being used at http://researchnot.es
 
 The source code here allows for the creation of a markdown based blog built in Go. The programme will include code to support a database comments system, inline and at the end of articles and a database highlights system.
 
-## Issues
+## Contributions
+
+Only designers are allowed to contribute to this code base. If you want to contribute to it, realise that you’re a designer. For every line of code you contribute, ask yourself: does this improve the experience of the person viewing the Blog.
+
+
+## Accessibility
+
+Accessibility is not an afterthought or a layer; it should be considered continuously at design and development time.
+
+We see accessibility as usability for audiences with special needs. These may be environmental, physical, or psychological in nature. They may be temporary or permanent. And they may vary in severity.
+
+We also recognise that the needs of different audiences may be different and may even conflict with one another (e.g., high contrast text may aid people with visual challenges or people viewing the app in bright sunlight but may hinder comprehension for people with dyslexia).
+
+## Localisation and internationalisation
+
+Localisation and internationalisation, like Accessibility (and related to Accessibility) are not an afterthought or a layer; please consider them continuously at design and development time.
+
+## Known Issues
 See issues for bugs and features I hope to implement.
 
 ## Initial Thanks
 This tutorial http://blog.definedcode.com/creating-blog-go 
 and Slack Go contributor Abiola Ibrahim
+
+## On going thanks !
+
+Jason Buberel https://github.com/jbuberel
 
 
 ## Copyright

@@ -12,11 +12,11 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/russross/blackfriday"
-	
 )
 
 
 type Post struct {
+	Status   string
 	Title    string
 	Date     string
 	Summary  string
@@ -35,7 +35,7 @@ func init() {
 	// you do not have to open the db connection on every request
 	// it can be done once at the start of the app
 	var err error
-	db, err = sql.Open("mysql", "username:password(localhost:3306)/database")
+	db, err = sql.Open("mysql", "username:password(localhost:3306)/databasename")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,7 +53,7 @@ func handlerequest(w http.ResponseWriter, r *http.Request) {
 		uniquepost := r.FormValue("uniquepost")
 		namein := r.FormValue("name")
 		commentin := r.FormValue("comment")
-	
+
 		_, err := db.Exec(
 			"INSERT INTO comments (uniquepost, name, comment) VALUES (?, ?, ?)",
 			uniquepost,
@@ -103,12 +103,13 @@ func handlerequest(w http.ResponseWriter, r *http.Request) {
 	f := "posts/" + r.URL.Path[1:] + ".md"
 	fileread, _ := ioutil.ReadFile(f)
 	lines := strings.Split(string(fileread), "\n")
-	title := string(lines[0])
-	date := string(lines[1])
-	summary := string(lines[2])
-	body := strings.Join(lines[3:len(lines)], "\n")
+	status := string(lines[0])
+	title := string(lines[1])
+	date := string(lines[2])
+	summary := string(lines[3])
+	body := strings.Join(lines[4:len(lines)], "\n")
 	htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
-	post := Post{title, date, summary, htmlBody, r.URL.Path[1:], comments}
+	post := Post{status,title, date, summary, htmlBody, r.URL.Path[1:], comments}
 	t := template.New("post.html")
 	t, _ = t.ParseFiles("post.html")
 	t.Execute(w, post)
@@ -123,18 +124,23 @@ func getPosts() []Post {
 		file = strings.Replace(file, ".md", "", -1)
 		fileread, _ := ioutil.ReadFile(f)
 		lines := strings.Split(string(fileread), "\n")
-		title := string(lines[0])
-		date := string(lines[1])
-		summary := string(lines[2])
-		body := strings.Join(lines[3:len(lines)], "\n")
+		status := string(lines[0])
+		title := string(lines[1])
+		date := string(lines[2])
+		summary := string(lines[3])
+		body := strings.Join(lines[4:len(lines)], "\n")
 		htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
 
-		a = append(a, Post{title, date, summary, htmlBody, file, nil})
+		a = append(a, Post{status, title, date, summary, htmlBody, file, nil})
 	}
 	return a
 }
 
 func main() {
-	http.HandleFunc("/", handlerequest)
+http.HandleFunc("/", handlerequest)
+http.Handle("/css/", http.StripPrefix("/css", http.FileServer(http.Dir("/location/onyourserver/css"))))
+http.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("/location/onyourserver/js"))))
+
 	http.ListenAndServe(":8000", nil)
+
 }
