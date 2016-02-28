@@ -138,16 +138,6 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	/*
-		fileread, _ := ioutil.ReadFile(f)
-		lines := strings.Split(string(fileread), "\n")
-		title := lines[0]
-		date := lines[1]
-		summary := lines[2]
-		body := strings.Join(lines[3:len(lines)], "\n")
-		htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
-		post := Post{title, date, summary, htmlBody, r.URL.Path[1:], comments}
-	*/
 	post.Comments = comments
 	if err := postTpl.Execute(w, post); err != nil {
 		log.Print(err)
@@ -168,20 +158,6 @@ func Posts() ([]*Post, error) {
 			continue
 		}
 		all = append(all, p)
-		//fmt.Println(f)
-		/*
-			file := strings.Replace(f, "posts/", "", -1)
-			file = strings.Replace(file, ".md", "", -1)
-			fileread, _ := ioutil.ReadFile(f)
-			lines := strings.Split(string(fileread), "\n")
-			title := lines[0]
-			date := lines[1]
-			summary := lines[2]
-			body := strings.Join(lines[3:len(lines)], "\n")
-			htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
-
-			a = append(a, Post{title, date, summary, htmlBody, file, nil})
-		*/
 	}
 	return all, nil
 }
