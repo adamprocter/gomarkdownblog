@@ -61,21 +61,17 @@ func init() {
 
 func main() {
 
-	http.HandleFunc("/", handleRequest)
+	http.Handle("favicon.ico", http.FileServer(http.Dir("/location/onyourserver")))
 	http.Handle("/css/", http.StripPrefix("/css", http.FileServer(http.Dir("/location/onyourserver/css"))))
 	http.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("/location/onyourserver/js"))))
+
+	http.HandleFunc("/", handleRequest)
 
 	log.Fatal(http.ListenAndServe(addr, nil))
 
 }
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
-
-	// skip if favicon.ico
-	if r.URL.Path == "/favicon.ico" {
-		return
-	}
-
 	/*
 		if r.Method == "POST" {
 
