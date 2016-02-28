@@ -50,6 +50,12 @@ func init() {
 */
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
+
+	// skip if favicon.ico
+	if r.URL.Path == "/favicon.ico" {
+		return
+	}
+
 	/*
 		if r.Method == "POST" {
 
