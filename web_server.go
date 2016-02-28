@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"html/template"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -138,11 +139,14 @@ func getPosts() []Post {
 	return a
 }
 
+// addr is server address.
+const addr = ":8000"
+
 func main() {
 	http.HandleFunc("/", handlerequest)
 	http.Handle("/css/", http.StripPrefix("/css", http.FileServer(http.Dir("/location/onyourserver/css"))))
 	http.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("/location/onyourserver/js"))))
 
-	http.ListenAndServe(":8000", nil)
+	log.Fatal(http.ListenAndServe(addr, nil))
 
 }
