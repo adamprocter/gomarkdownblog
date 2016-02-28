@@ -16,7 +16,6 @@ import (
 
 // Post holds post data.
 type Post struct {
-	Status   string
 	Title    string
 	Date     string
 	Summary  string
@@ -110,13 +109,12 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	f := "posts/" + r.URL.Path[1:] + ".md"
 	fileread, _ := ioutil.ReadFile(f)
 	lines := strings.Split(string(fileread), "\n")
-	status := lines[0]
-	title := lines[1]
-	date := lines[2]
-	summary := lines[3]
-	body := strings.Join(lines[4:len(lines)], "\n")
+	title := lines[0]
+	date := lines[1]
+	summary := lines[2]
+	body := strings.Join(lines[3:len(lines)], "\n")
 	htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
-	post := Post{status, title, date, summary, htmlBody, r.URL.Path[1:], comments}
+	post := Post{title, date, summary, htmlBody, r.URL.Path[1:], comments}
 	t := template.New("post.html")
 	t, _ = t.ParseFiles("post.html")
 	if err := t.Execute(w, post); err != nil {
@@ -132,14 +130,13 @@ func getPosts() []Post {
 		file = strings.Replace(file, ".md", "", -1)
 		fileread, _ := ioutil.ReadFile(f)
 		lines := strings.Split(string(fileread), "\n")
-		status := lines[0]
-		title := lines[1]
-		date := lines[2]
-		summary := lines[3]
-		body := strings.Join(lines[4:len(lines)], "\n")
+		title := lines[0]
+		date := lines[1]
+		summary := lines[2]
+		body := strings.Join(lines[3:len(lines)], "\n")
 		htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
 
-		a = append(a, Post{status, title, date, summary, htmlBody, file, nil})
+		a = append(a, Post{title, date, summary, htmlBody, file, nil})
 	}
 	return a
 }
