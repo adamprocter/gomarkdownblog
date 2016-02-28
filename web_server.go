@@ -1,14 +1,13 @@
 package main
 
 import (
-	//"fmt"
-
 	"errors"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
@@ -159,6 +158,8 @@ func Posts() ([]*Post, error) {
 		}
 		all = append(all, p)
 	}
+	// sort posts
+	sort.Sort(byDate(all))
 	return all, nil
 }
 
@@ -252,6 +253,25 @@ const iso8601DateFormat = "2006-01-02"
 func parseDate(s string) (time.Time, error) {
 	d, err := time.Parse(iso8601DateFormat, s)
 	return midnight(d), err
+}
+
+// byDate implements sort.Interface by providing
+// Less and using the Len and Swap methods.
+type byDate []*Post
+
+// Len is length of posts.
+func (bd byDate) Len() int {
+	return len(bd)
+}
+
+// Less handle sort logic.
+func (bd byDate) Less(i, j int) bool {
+	return bd[i].date.After(bd[j].date)
+}
+
+// Swap changes elements.
+func (bd byDate) Swap(i, j int) {
+	bd[i], bd[j] = bd[j], bd[i]
 }
 
 // Comment holds comment data.
