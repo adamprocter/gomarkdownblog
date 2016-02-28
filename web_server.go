@@ -194,6 +194,11 @@ type Post struct {
 	Comments []Comment
 }
 
+func (p *Post) Date() string {
+	layout := "2 Jan 2006"
+	return p.date.Format(layout)
+}
+
 const (
 	// minLines holds minimal number of lines.
 	minLines = 4
