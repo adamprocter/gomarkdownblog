@@ -106,11 +106,19 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 	/*
 		uniquepost := r.URL.Path[1:]
-		rows, err := db.Query("select id, name, comment from comments where uniquepost = ?", uniquepost)
+		var (
+			rows *sql.Rows
+			err  error
+		)
+		rows, err = db.Query("select id, name, comment from comments where uniquepost = ?", uniquepost)
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer rows.Close()
+		defer func() {
+			if err = rows.Close(); err != nil {
+				log.Print(err)
+			}
+		}()
 	*/
 	//declear an array to keep all comments
 	var comments []Comment
@@ -118,15 +126,13 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		for rows.Next() {
 			var id int
 			var name, comment string
-			err := rows.Scan(&id, &name, &comment)
-			if err != nil {
+			if err = rows.Scan(&id, &name, &comment); err != nil {
 				log.Fatal(err)
 			}
 			//append the comment into the array when done
 			comments = append(comments, Comment{name, comment})
 		}
-		err = rows.Err()
-		if err != nil {
+		if err = rows.Err(); err != nil {
 			log.Fatal(err)
 		}
 	*/
