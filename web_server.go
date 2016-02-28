@@ -3,6 +3,7 @@ package main
 import (
 	//"fmt"
 
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -97,7 +98,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 		}
 	*/
 	if r.URL.Path[1:] == "" {
-		posts := getPosts()
+		posts, _ := Posts()
 		if err := indexTpl.Execute(w, posts); err != nil {
 			log.Print(err)
 		}
@@ -143,23 +144,30 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getPosts() []Post {
-	a := []Post{}
-	files, _ := filepath.Glob("posts/*")
-	for _, f := range files {
-		file := strings.Replace(f, "posts/", "", -1)
-		file = strings.Replace(file, ".md", "", -1)
-		fileread, _ := ioutil.ReadFile(f)
-		lines := strings.Split(string(fileread), "\n")
-		title := lines[0]
-		date := lines[1]
-		summary := lines[2]
-		body := strings.Join(lines[3:len(lines)], "\n")
-		htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
-
-		a = append(a, Post{title, date, summary, htmlBody, file, nil})
+// Posts returns all posts from files.
+func Posts() ([]*Post, error) {
+	var all []*Post
+	files, err := filepath.Glob("posts/*.md")
+	if err != nil {
+		return nil, err
 	}
-	return a
+	for _, f := range files {
+		fmt.Println(f)
+		/*
+			file := strings.Replace(f, "posts/", "", -1)
+			file = strings.Replace(file, ".md", "", -1)
+			fileread, _ := ioutil.ReadFile(f)
+			lines := strings.Split(string(fileread), "\n")
+			title := lines[0]
+			date := lines[1]
+			summary := lines[2]
+			body := strings.Join(lines[3:len(lines)], "\n")
+			htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
+
+			a = append(a, Post{title, date, summary, htmlBody, file, nil})
+		*/
+	}
+	return all, nil
 }
 
 // Post holds post data.
