@@ -194,6 +194,7 @@ type Post struct {
 	Comments []Comment
 }
 
+// Date returns formated date.
 func (p *Post) Date() string {
 	layout := "2 Jan 2006"
 	return p.date.Format(layout)
