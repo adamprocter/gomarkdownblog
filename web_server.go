@@ -50,7 +50,7 @@ func init() {
 }
 */
 
-func handlerequest(w http.ResponseWriter, r *http.Request) {
+func handleRequest(w http.ResponseWriter, r *http.Request) {
 	/*
 		if r.Method == "POST" {
 
@@ -148,7 +148,7 @@ func getPosts() []Post {
 const addr = ":8000"
 
 func main() {
-	http.HandleFunc("/", handlerequest)
+	http.HandleFunc("/", handleRequest)
 	http.Handle("/css/", http.StripPrefix("/css", http.FileServer(http.Dir("/location/onyourserver/css"))))
 	http.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("/location/onyourserver/js"))))
 
