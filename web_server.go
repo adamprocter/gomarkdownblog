@@ -14,6 +14,7 @@ import (
 	"github.com/russross/blackfriday"
 )
 
+// Post holds post data.
 type Post struct {
 	Status   string
 	Title    string
@@ -24,6 +25,7 @@ type Post struct {
 	Comments []Comment
 }
 
+// Comment holds comment data.
 type Comment struct {
 	Name, Comment string
 }
@@ -74,7 +76,9 @@ func handlerequest(w http.ResponseWriter, r *http.Request) {
 		posts := getPosts()
 		t := template.New("index.html")
 		t, _ = t.ParseFiles("index.html")
-		t.Execute(w, posts)
+		if err := t.Execute(w, posts); err != nil {
+			log.Print(err)
+		}
 		return
 	}
 	/*
@@ -106,17 +110,18 @@ func handlerequest(w http.ResponseWriter, r *http.Request) {
 	f := "posts/" + r.URL.Path[1:] + ".md"
 	fileread, _ := ioutil.ReadFile(f)
 	lines := strings.Split(string(fileread), "\n")
-	status := string(lines[0])
-	title := string(lines[1])
-	date := string(lines[2])
-	summary := string(lines[3])
+	status := lines[0]
+	title := lines[1]
+	date := lines[2]
+	summary := lines[3]
 	body := strings.Join(lines[4:len(lines)], "\n")
 	htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
 	post := Post{status, title, date, summary, htmlBody, r.URL.Path[1:], comments}
 	t := template.New("post.html")
 	t, _ = t.ParseFiles("post.html")
-	t.Execute(w, post)
-
+	if err := t.Execute(w, post); err != nil {
+		log.Print(err)
+	}
 }
 
 func getPosts() []Post {
@@ -127,10 +132,10 @@ func getPosts() []Post {
 		file = strings.Replace(file, ".md", "", -1)
 		fileread, _ := ioutil.ReadFile(f)
 		lines := strings.Split(string(fileread), "\n")
-		status := string(lines[0])
-		title := string(lines[1])
-		date := string(lines[2])
-		summary := string(lines[3])
+		status := lines[0]
+		title := lines[1]
+		date := lines[2]
+		summary := lines[3]
 		body := strings.Join(lines[4:len(lines)], "\n")
 		htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
 
