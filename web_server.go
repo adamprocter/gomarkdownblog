@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"html/template"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"path/filepath"
 	"strings"
@@ -13,7 +12,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/russross/blackfriday"
 )
-
 
 type Post struct {
 	Status   string
@@ -31,6 +29,7 @@ type Comment struct {
 
 var db *sql.DB
 
+/*
 func init() {
 	// you do not have to open the db connection on every request
 	// it can be done once at the start of the app
@@ -46,28 +45,30 @@ func init() {
 	}
 
 }
+*/
 
 func handlerequest(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
+	/*
+		if r.Method == "POST" {
 
-		uniquepost := r.FormValue("uniquepost")
-		namein := r.FormValue("name")
-		commentin := r.FormValue("comment")
+			uniquepost := r.FormValue("uniquepost")
+			namein := r.FormValue("name")
+			commentin := r.FormValue("comment")
 
-		_, err := db.Exec(
-			"INSERT INTO comments (uniquepost, name, comment) VALUES (?, ?, ?)",
-			uniquepost,
-			namein,
-			commentin,
-		)
-		if err != nil {
-			log.Fatal(err)
+			_, err := db.Exec(
+				"INSERT INTO comments (uniquepost, name, comment) VALUES (?, ?, ?)",
+				uniquepost,
+				namein,
+				commentin,
+			)
+			if err != nil {
+				log.Fatal(err)
+			}
+			//when done inserting comment redirect back to this page
+			http.Redirect(w, r, r.URL.Path, 301)
+			return
 		}
-		//when done inserting comment redirect back to this page
-		http.Redirect(w, r, r.URL.Path, 301)
-		return
-	}
-
+	*/
 	if r.URL.Path[1:] == "" {
 		posts := getPosts()
 		t := template.New("index.html")
@@ -75,31 +76,32 @@ func handlerequest(w http.ResponseWriter, r *http.Request) {
 		t.Execute(w, posts)
 		return
 	}
-	uniquepost := r.URL.Path[1:]
-	rows, err := db.Query("select id, name, comment from comments where uniquepost = ?", uniquepost)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
-	//declear an array to keep all comments
-	var comments []Comment
-
-	for rows.Next() {
-		var id int
-		var name, comment string
-		err := rows.Scan(&id, &name, &comment)
+	/*
+		uniquepost := r.URL.Path[1:]
+		rows, err := db.Query("select id, name, comment from comments where uniquepost = ?", uniquepost)
 		if err != nil {
 			log.Fatal(err)
 		}
-		//append the comment into the array when done
-		comments = append(comments, Comment{name, comment})
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+		defer rows.Close()
+	*/
+	//declear an array to keep all comments
+	var comments []Comment
+	/*
+		for rows.Next() {
+			var id int
+			var name, comment string
+			err := rows.Scan(&id, &name, &comment)
+			if err != nil {
+				log.Fatal(err)
+			}
+			//append the comment into the array when done
+			comments = append(comments, Comment{name, comment})
+		}
+		err = rows.Err()
+		if err != nil {
+			log.Fatal(err)
+		}
+	*/
 	f := "posts/" + r.URL.Path[1:] + ".md"
 	fileread, _ := ioutil.ReadFile(f)
 	lines := strings.Split(string(fileread), "\n")
@@ -109,7 +111,7 @@ func handlerequest(w http.ResponseWriter, r *http.Request) {
 	summary := string(lines[3])
 	body := strings.Join(lines[4:len(lines)], "\n")
 	htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
-	post := Post{status,title, date, summary, htmlBody, r.URL.Path[1:], comments}
+	post := Post{status, title, date, summary, htmlBody, r.URL.Path[1:], comments}
 	t := template.New("post.html")
 	t, _ = t.ParseFiles("post.html")
 	t.Execute(w, post)
@@ -137,9 +139,9 @@ func getPosts() []Post {
 }
 
 func main() {
-http.HandleFunc("/", handlerequest)
-http.Handle("/css/", http.StripPrefix("/css", http.FileServer(http.Dir("/location/onyourserver/css"))))
-http.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("/location/onyourserver/js"))))
+	http.HandleFunc("/", handlerequest)
+	http.Handle("/css/", http.StripPrefix("/css", http.FileServer(http.Dir("/location/onyourserver/css"))))
+	http.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("/location/onyourserver/js"))))
 
 	http.ListenAndServe(":8000", nil)
 
