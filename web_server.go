@@ -79,9 +79,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	*/
 	if r.URL.Path[1:] == "" {
 		posts := getPosts()
-		t := template.New("index.html")
-		t, _ = t.ParseFiles("index.html")
-		if err := t.Execute(w, posts); err != nil {
+		if err := indexTpl.Execute(w, posts); err != nil {
 			log.Print(err)
 		}
 		return
@@ -121,9 +119,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 	body := strings.Join(lines[3:len(lines)], "\n")
 	htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
 	post := Post{title, date, summary, htmlBody, r.URL.Path[1:], comments}
-	t := template.New("post.html")
-	t, _ = t.ParseFiles("post.html")
-	if err := t.Execute(w, post); err != nil {
+	if err := postTpl.Execute(w, post); err != nil {
 		log.Print(err)
 	}
 }
@@ -150,7 +146,28 @@ func getPosts() []Post {
 // addr is server address.
 const addr = ":8000"
 
+const (
+	indexTplFile = "templates/index.html"
+	postTplFile  = "templates/post.html"
+)
+
+var (
+	indexTpl *template.Template
+	postTpl  *template.Template
+)
+
 func main() {
+	// init posts templates
+	var err error
+	indexTpl, err = template.ParseFiles(indexTplFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	postTpl, err = template.ParseFiles(postTplFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	http.HandleFunc("/", handleRequest)
 	http.Handle("/css/", http.StripPrefix("/css", http.FileServer(http.Dir("/location/onyourserver/css"))))
 	http.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("/location/onyourserver/js"))))
