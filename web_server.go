@@ -2,7 +2,7 @@ package main
 
 import (
 	//"fmt"
-	"database/sql"
+
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -28,9 +28,9 @@ type Comment struct {
 	Name, Comment string
 }
 
+/*
 var db *sql.DB
 
-/*
 func init() {
 	// you do not have to open the db connection on every request
 	// it can be done once at the start of the app
