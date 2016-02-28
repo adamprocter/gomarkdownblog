@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -17,17 +16,6 @@ func fakeDate(y, m, d int) time.Time {
 // formatDate returns shorter date representation.
 func formatDate(date time.Time) string {
 	return date.Format(iso8601DateFormat)
-}
-
-func Test(t *testing.T) {
-	//	main()
-	all, err := Posts()
-	if err != nil {
-		t.Error(err)
-	}
-	for _, p := range all {
-		fmt.Println(p.Title)
-	}
 }
 
 func TestMidnight(t *testing.T) {
