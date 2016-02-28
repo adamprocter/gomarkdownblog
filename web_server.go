@@ -14,40 +14,59 @@ import (
 	"github.com/russross/blackfriday"
 )
 
-// Post holds post data.
-type Post struct {
-	Title    string
-	Date     string
-	Summary  string
-	Body     template.HTML
-	File     string
-	Comments []Comment
-}
+// addr is server address.
+const addr = ":8000"
 
-// Comment holds comment data.
-type Comment struct {
-	Name, Comment string
-}
+const (
+	indexTplFile = "templates/index.html"
+	postTplFile  = "templates/post.html"
+)
 
-/*
-var db *sql.DB
+var (
+	// database
+	// db *sql.DB
+
+	// templates
+	indexTpl *template.Template
+	postTpl  *template.Template
+)
 
 func init() {
-	// you do not have to open the db connection on every request
-	// it can be done once at the start of the app
 	var err error
-	db, err = sql.Open("mysql", "username:password(localhost:3306)/databasename")
+	/*
+		// you do not have to open the db connection on every request
+		// it can be done once at the start of the app
+		db, err = sql.Open("mysql", "username:password(localhost:3306)/databasename")
+		if err != nil {
+			log.Fatal(err)
+		}
+		// Open doesn't open a connection. Validate DSN data:
+		err = db.Ping()
+		if err != nil {
+			log.Fatal(err)
+		}
+	*/
+
+	// init posts templates
+	indexTpl, err = template.ParseFiles(indexTplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Open doesn't open a connection. Validate DSN data:
-	err = db.Ping()
+	postTpl, err = template.ParseFiles(postTplFile)
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func main() {
+
+	http.HandleFunc("/", handleRequest)
+	http.Handle("/css/", http.StripPrefix("/css", http.FileServer(http.Dir("/location/onyourserver/css"))))
+	http.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("/location/onyourserver/js"))))
+
+	log.Fatal(http.ListenAndServe(addr, nil))
 
 }
-*/
 
 func handleRequest(w http.ResponseWriter, r *http.Request) {
 
@@ -143,35 +162,17 @@ func getPosts() []Post {
 	return a
 }
 
-// addr is server address.
-const addr = ":8000"
+// Post holds post data.
+type Post struct {
+	Title    string
+	Date     string
+	Summary  string
+	Body     template.HTML
+	File     string
+	Comments []Comment
+}
 
-const (
-	indexTplFile = "templates/index.html"
-	postTplFile  = "templates/post.html"
-)
-
-var (
-	indexTpl *template.Template
-	postTpl  *template.Template
-)
-
-func main() {
-	// init posts templates
-	var err error
-	indexTpl, err = template.ParseFiles(indexTplFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	postTpl, err = template.ParseFiles(postTplFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	http.HandleFunc("/", handleRequest)
-	http.Handle("/css/", http.StripPrefix("/css", http.FileServer(http.Dir("/location/onyourserver/css"))))
-	http.Handle("/js/", http.StripPrefix("/js", http.FileServer(http.Dir("/location/onyourserver/js"))))
-
-	log.Fatal(http.ListenAndServe(addr, nil))
-
+// Comment holds comment data.
+type Comment struct {
+	Name, Comment string
 }
