@@ -3,13 +3,14 @@ package main
 import (
 	//"fmt"
 
-	"fmt"
+	"errors"
 	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"path/filepath"
 	"strings"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/russross/blackfriday"
@@ -130,15 +131,24 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 	*/
-	f := "posts/" + r.URL.Path[1:] + ".md"
-	fileread, _ := ioutil.ReadFile(f)
-	lines := strings.Split(string(fileread), "\n")
-	title := lines[0]
-	date := lines[1]
-	summary := lines[2]
-	body := strings.Join(lines[3:len(lines)], "\n")
-	htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
-	post := Post{title, date, summary, htmlBody, r.URL.Path[1:], comments}
+	path := "posts/" + r.URL.Path[1:] + ".md"
+	post, err := loadPost(path)
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	/*
+		fileread, _ := ioutil.ReadFile(f)
+		lines := strings.Split(string(fileread), "\n")
+		title := lines[0]
+		date := lines[1]
+		summary := lines[2]
+		body := strings.Join(lines[3:len(lines)], "\n")
+		htmlBody := template.HTML(blackfriday.MarkdownCommon([]byte(body)))
+		post := Post{title, date, summary, htmlBody, r.URL.Path[1:], comments}
+	*/
+	post.Comments = comments
 	if err := postTpl.Execute(w, post); err != nil {
 		log.Print(err)
 	}
@@ -152,7 +162,13 @@ func Posts() ([]*Post, error) {
 		return nil, err
 	}
 	for _, f := range files {
-		fmt.Println(f)
+		p, err := loadPost(f)
+		if err != nil {
+			log.Print(err)
+			continue
+		}
+		all = append(all, p)
+		//fmt.Println(f)
 		/*
 			file := strings.Replace(f, "posts/", "", -1)
 			file = strings.Replace(file, ".md", "", -1)
@@ -170,14 +186,90 @@ func Posts() ([]*Post, error) {
 	return all, nil
 }
 
+func loadPost(path string) (*Post, error) {
+	fc, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	p, err := newPost(fc)
+	if err != nil {
+		return nil, err
+	}
+	p.File = fileToken(path)
+	return p, nil
+}
+
+// fileToken returns token from file path.
+// Token is filename without extension.
+func fileToken(path string) string {
+	f := filepath.Base(path)
+	ext := filepath.Ext(f)
+	token := f[:len(f)-len(ext)]
+	return token
+}
+
 // Post holds post data.
 type Post struct {
 	Title    string
-	Date     string
+	date     time.Time
 	Summary  string
 	Body     template.HTML
 	File     string
 	Comments []Comment
+}
+
+const (
+	// minLines holds minimal number of lines.
+	minLines = 4
+
+	titleLine   = 0
+	dateLine    = 1
+	summaryLine = 2
+	bodyLine    = 3
+)
+
+func newPost(b []byte) (*Post, error) {
+	if len(b) < 1 {
+		return nil, errors.New("empty post")
+	}
+	lines := strings.Split(string(b), "\n")
+	if len(lines) < minLines {
+		return nil, errors.New("invalid post")
+	}
+
+	date, err := parseDate(lines[dateLine])
+	if err != nil {
+		return nil, err
+	}
+
+	body := strings.Join(lines[bodyLine:], "\n")
+
+	p := &Post{
+		Title:   lines[titleLine],
+		date:    date,
+		Summary: lines[summaryLine],
+		Body: template.HTML(
+			blackfriday.MarkdownCommon(
+				[]byte(body),
+			),
+		),
+	}
+
+	return p, nil
+}
+
+// midnight returns date with zero time.
+func midnight(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, time.UTC)
+}
+
+// iso8601DateFormat represents date in YYYY-MM-DD format.
+const iso8601DateFormat = "2006-01-02"
+
+// parseDate returns parsed or zero date.
+func parseDate(s string) (time.Time, error) {
+	d, err := time.Parse(iso8601DateFormat, s)
+	return midnight(d), err
 }
 
 // Comment holds comment data.
